@@ -1,0 +1,81 @@
+apply plugin: 'groovy'
+apply plugin: 'maven'
+apply plugin: 'signing'
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  compile gradleApi()
+  compile localGroovy()
+  compile 'org.eclipse.jgit:org.eclipse.jgit:4.8.0.201706111038-r'
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from tasks.javadoc.destinationDir
+}
+
+task sourcesJar(type: Jar) {
+  classifier = 'sources'
+  from sourceSets.main.allSource
+}
+
+artifacts {
+  archives jar
+  archives javadocJar
+  archives sourcesJar
+}
+
+group 'com.github.mixja'
+version '0.1.0'
+
+
+signing {
+  sign configurations.archives
+}
+
+uploadArchives {
+  repositories {
+    mavenDeployer {
+     beforeDeployment {
+       MavenDeployment deployment -> signing.signPom(deployment)
+     }
+     repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+       authentication(userName: ossrhUsername, password: ossrhPassword)
+     }
+     snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+       authentication(userName: ossrhUsername, password: ossrhPassword)
+     }
+
+     pom.project {
+       name 'Gradle Auto Version Plugin'
+       packaging 'jar'
+       description 'Provides automatic versioning'
+       url 'https://github.com/mixja/gradle-autoversion-plugin'
+
+       scm {
+         connection 'scm:git:https://github.com/mixja/gradle-autoversion-plugin.git'
+         developerConnection 'scm:git:https://github.com/mixja/gradle-autoversion-plugin.git'
+         url 'https://github.com/mixja/gradle-autoversion-plugin'
+       }
+
+       licenses {
+         license {
+           name 'The Apache License, Version 2.0'
+           url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+         }
+       }
+
+       developers {
+         developer {
+           id 'mixja'
+           name 'Justin Menga'
+           email 'justin.menga@gmail.com'
+         }
+       }
+     }
+    }
+  }
+}
