@@ -58,18 +58,18 @@ class AutoVersionPlugin implements Plugin<Project> {
             latestCommitDate = LocalDate.now(ZoneId.of("UTC"))
             month = latestCommitDate.withDayOfMonth(1)
         }
+
         // Build version
-        project.afterEvaluate {
-            String baseVersion = month.format(DateTimeFormatter.ofPattern("YY.MM"))
-            String buildVersion = project.autoVersion.buildVersion ? ".${project.autoVersion.buildVersion}" : ""
-            String branchVersion = branch != project.autoVersion.defaultBranch ? ".${branch}" : ""
-            version = "${baseVersion}.${patchVersion}${branchVersion}${buildVersion}"
+        String baseVersion = month.format(DateTimeFormatter.ofPattern("YY.MM"))
+        String buildVersion = project.autoVersion.buildVersion ? ".${project.autoVersion.buildVersion}" : ""
+        String branchVersion = branch != project.autoVersion.defaultBranch ? ".${branch}" : ""
+        version = "${baseVersion}.${patchVersion}${branchVersion}${buildVersion}"
 
-            // Set version
-            project.setVersion(version)
-            project.getAllprojects().forEach { p -> p.setVersion(version) }
-        }
+        // Set version
+        project.setVersion(version)
+        project.getAllprojects().forEach { p -> p.setVersion(version) }
 
+        // Version task
         project.task('version') {
             doLast {
                 println version
